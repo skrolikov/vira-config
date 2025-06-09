@@ -32,7 +32,7 @@ func Load() *Config {
 	// Опциональные с дефолтами
 	cfg.Port = getEnv("PORT", "8080")
 
-	cfg.KafkaAddr = getEnv("KAFKA_ADDR", "localhost:9092")
+	cfg.KafkaAddr = getEnv("KAFKA_ADDR", "redpanda:9092")
 
 	cfg.RedisAddr = getEnv("REDIS_ADDR", "redis:6379")
 	cfg.RedisDB = mustAtoi(getEnv("REDIS_DB", "0"))
