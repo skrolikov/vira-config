@@ -10,17 +10,19 @@ import (
 )
 
 type Config struct {
-	DBUrl          string // для vira-id и других, кто использует DBUrl
-	PostgresDSN    string // приоритетный параметр для Postgres (vira-dev)
-	ViraIDEndpoint string // URL vira-id (vira-dev)
-	KafkaAddr      string
-	JwtSecret      string
-	Port           string
-	DevPort        string
-	JwtTTL         time.Duration
-	JwtRefreshTTL  time.Duration
-	RedisAddr      string
-	RedisDB        int
+	DBUrl           string // для vira-id и других, кто использует DBUrl
+	DevPostgresDSN  string // приоритетный параметр для Postgres (vira-api-dev)
+	WishPostgresDSN string // приоритетный параметр для Postgres (vira-api-wish)
+	ViraIDEndpoint  string // URL vira-id
+	KafkaAddr       string
+	JwtSecret       string
+	Port            string
+	DevPort         string
+	WishPort        string
+	JwtTTL          time.Duration
+	JwtRefreshTTL   time.Duration
+	RedisAddr       string
+	RedisDB         int
 }
 
 func Load() *Config {
@@ -32,11 +34,13 @@ func Load() *Config {
 	cfg.DBUrl = mustEnv("DB_URL")
 	cfg.JwtSecret = mustEnv("JWT_SECRET")
 
-	// Новые: если POSTGRES_DSN не задан, падаем на DBUrl
-	cfg.PostgresDSN = getEnv("POSTGRES_DSN", cfg.DBUrl)
+	// Новые: если DEV_POSTGRES_DSN не задан, падаем на DBUrl
+	cfg.DevPostgresDSN = getEnv("DEV_POSTGRES_DSN", cfg.DBUrl)
+	cfg.WishPostgresDSN = getEnv("WISH_POSTGRES_DSN", cfg.DBUrl)
 	// Для vira-dev:
 	cfg.ViraIDEndpoint = getEnv("VIRA_ID_ENDPOINT", "")
 	cfg.DevPort = getEnv("DEV_PORT", "8080")
+	cfg.WishPort = getEnv("WISH_PORT", "8080")
 
 	// Опциональные
 	cfg.Port = getEnv("PORT", "8080")
