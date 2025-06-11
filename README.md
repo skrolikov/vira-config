@@ -13,7 +13,7 @@
 ## Использование
 
 ```go
-import "github.com/yourusername/vira-config/config"
+import "github.com/skrolikov/vira-config/config"
 
 func main() {
     cfg := config.Load()
