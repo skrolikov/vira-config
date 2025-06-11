@@ -10,14 +10,17 @@ import (
 )
 
 type Config struct {
-	DBUrl         string
-	KafkaAddr     string
-	JwtSecret     string
-	Port          string
-	JwtTTL        time.Duration
-	JwtRefreshTTL time.Duration
-	RedisAddr     string
-	RedisDB       int
+	DBUrl          string // для vira-id и других, кто использует DBUrl
+	PostgresDSN    string // приоритетный параметр для Postgres (vira-dev)
+	ViraIDEndpoint string // URL vira-id (vira-dev)
+	KafkaAddr      string
+	JwtSecret      string
+	Port           string
+	DevPort        string
+	JwtTTL         time.Duration
+	JwtRefreshTTL  time.Duration
+	RedisAddr      string
+	RedisDB        int
 }
 
 func Load() *Config {
@@ -25,21 +28,24 @@ func Load() *Config {
 
 	cfg := &Config{}
 
-	// ВАЖНЫЕ значения (обязательные)
+	// Существующие обязательные
 	cfg.DBUrl = mustEnv("DB_URL")
 	cfg.JwtSecret = mustEnv("JWT_SECRET")
 
-	// Опциональные с дефолтами
+	// Новые: если POSTGRES_DSN не задан, падаем на DBUrl
+	cfg.PostgresDSN = getEnv("POSTGRES_DSN", cfg.DBUrl)
+	// Для vira-dev:
+	cfg.ViraIDEndpoint = getEnv("VIRA_ID_ENDPOINT", "")
+	cfg.DevPort = getEnv("DEV_PORT", "8080")
+
+	// Опциональные
 	cfg.Port = getEnv("PORT", "8080")
-
 	cfg.KafkaAddr = getEnv("KAFKA_ADDR", "redpanda:9092")
-
 	cfg.RedisAddr = getEnv("REDIS_ADDR", "redis:6379")
 	cfg.RedisDB = mustAtoi(getEnv("REDIS_DB", "0"))
 
 	ttlMinutes := mustAtoi(getEnv("JWT_TTL_MINUTES", "15"))
 	refreshDays := mustAtoi(getEnv("JWT_REFRESH_DAYS", "7"))
-
 	cfg.JwtTTL = time.Duration(ttlMinutes) * time.Minute
 	cfg.JwtRefreshTTL = time.Duration(refreshDays) * 24 * time.Hour
 
